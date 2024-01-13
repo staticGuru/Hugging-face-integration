@@ -2,7 +2,8 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-
+from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
+from langchain.vectorstores import faiss
 
 def get_pdf_content(pdf_docs):
     text=""
@@ -22,7 +23,10 @@ def get_text_chunks(raw_text):
     chunks=text_splitter.split_text(raw_text)
     return chunks
     
-    
+def get_vectorstore(text_chuncks):
+    embeddings=OpenAIEmbeddings()
+    vectorstore=faiss.FAISS.from_texts(texts=text_chuncks,embedding=embeddings)
+    return vectorstore   
 
 def PDFbot():
     load_dotenv()
@@ -39,7 +43,6 @@ def PDFbot():
                 
                 #get the text chuncks
                 text_chuncks=get_text_chunks(raw_text)
-                st.write(text_chuncks)
                 
                 #create the vector store 
-
+                vectorstore= get_vectorstore(text_chuncks)
